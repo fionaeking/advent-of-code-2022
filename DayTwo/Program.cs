@@ -11,7 +11,7 @@ const int winScore = 6;
 const int drawScore = 3;
 
 var partOneScore = 0;
-var PartTwoScore = 0;
+var partTwoScore = 0;
 foreach (var line in File.ReadAllLines("PuzzleInput.txt"))
 {
     var split = line.Split(" ", StringSplitOptions.TrimEntries);
@@ -25,11 +25,11 @@ foreach (var line in File.ReadAllLines("PuzzleInput.txt"))
 
     // Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock. 
     partOneScore += PartOne(opponent, you);
-    PartTwoScore += PartTwo(opponent, you);
+    partTwoScore += PartTwo(opponent, you);
 }
 
 Console.WriteLine($"Final score: {partOneScore}");
-Console.WriteLine($"Final score: {PartTwoScore}");
+Console.WriteLine($"Final score: {partTwoScore}");
 
 
 int PartOne(RPS opponent, RPS you)
