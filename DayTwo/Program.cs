@@ -31,7 +31,6 @@ var models = new List<RPSModel>()
     },
 };
 
-
 const int winScore = 6;
 const int drawScore = 3;
 
@@ -48,7 +47,6 @@ foreach (var line in File.ReadAllLines("PuzzleInput.txt"))
     var opponent = models.First(x => x.MapsFromOpponent == (InputOptions)Enum.Parse(typeof(InputOptions), split[0]));
     var you = models.First(x => x.MapsFromYou == (InputOptions)Enum.Parse(typeof(InputOptions), split[1]));
 
-    // Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock. 
     partOneScore += PartOne(opponent, you);
     partTwoScore += PartTwo(opponent, you);
 }
