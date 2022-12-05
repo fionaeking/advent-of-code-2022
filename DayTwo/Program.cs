@@ -1,6 +1,6 @@
 ﻿using DayTwo;
 
-const List<RPSModel> models = new List<RPSModel>()
+var models = new List<RPSModel>()
 {
     new RPSModel()
     {
@@ -89,22 +89,4 @@ int PartTwo(RPSModel opponent, RPSModel you)
         score += models.First(x => x.Type == opponent.LosesTo).Score;
     }
     return score;
-}
-
-
-enum InputOptions
-{
-    A,
-    B,
-    C,
-    X,
-    Y,
-    Z
-}
-
-enum RPSType
-{
-    Rock,
-    Paper,
-    Scissors
 }
