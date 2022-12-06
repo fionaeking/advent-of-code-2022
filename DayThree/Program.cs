@@ -1,24 +1,21 @@
 ﻿using DayThree;
 
-var sum = 0;
-foreach (var line in File.ReadAllLines("PuzzleInput.txt"))
+var sumOne = 0;
+var sumTwo = 0;
+foreach (var elfGroup in File.ReadAllLines("PuzzleInput.txt").ToList().Partition(3))
 {
-    sum += ConvertCharToInt(
+    foreach (var line in elfGroup)
+    {
+        sumOne += ConvertCharToInt(
               line[..(line.Length / 2)].Distinct()
               .Concat(line[(line.Length / 2)..].Distinct())
               .MostCommonChar()
             );
-}
-Console.WriteLine($"Part one answer: {sum}");
-
-
-var sumTwo = 0;
-foreach (var elfGroup in File.ReadAllLines("PuzzleInput.txt").ToList().Partition(3))
-{
+    }
     sumTwo += ConvertCharToInt(elfGroup.SelectMany(x => x.Distinct()).MostCommonChar());
 }
+Console.WriteLine($"Part one answer: {sumOne}");
 Console.WriteLine($"Part two answer: {sumTwo}");
-
 
 static int ConvertCharToInt(char c)
 {
