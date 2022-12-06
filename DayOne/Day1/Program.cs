@@ -11,10 +11,9 @@ foreach (var groupedCalorieCounts in File.ReadAllText("PuzzleInput.txt")
         }
         else
         {
-            Console.WriteLine($"Error parsing {groupCalorieCount} to string");
+            Console.WriteLine($"Error parsing {groupCalorieCount} to int");
         }
     }
-    Console.WriteLine($"Total calorie count: {calorieCount}");
     sums.Add(calorieCount);
 }
 var orderedCalorieCounts = sums.OrderByDescending(x => x);
