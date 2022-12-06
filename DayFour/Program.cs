@@ -9,7 +9,7 @@ foreach (var line in File.ReadLines("PuzzleInput.txt").Select(x => x.Split(delim
     {
         partOneCount++;
     }
-    else if ((f[0] == f[2]) || (f[0] == f[3]) || (f[1] == f[2]) || (f[1] == f[3]) || ((f[1] > f[2]) && (f[3] > f[0])))
+    else if ((f[0] == f[3]) || (f[1] == f[2]) || ((f[1] > f[2]) && (f[3] > f[0])))
     {
         partTwoCount++;
     }
