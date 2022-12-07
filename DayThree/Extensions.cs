@@ -2,11 +2,6 @@
 {
     public static class Extensions
     {
-        public static char Invert(this char c)
-        {
-            return char.IsUpper(c) ? char.ToLower(c) : char.ToUpper(c);
-        }
-
         public static IEnumerable<List<T>> Partition<T>(this List<T> inputList, int listSize)
         {
             for (int i = 0; i < inputList.Count; i += listSize)
@@ -22,5 +17,4 @@
                       .First().Key;
         }
     }
-
 }
