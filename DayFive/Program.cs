@@ -2,9 +2,11 @@
 
 var input = File.ReadAllLines("PuzzleInput.txt");
 var moveInstructions = ParseMoveInstructions(input);
-var cargoStack = ParseCargoStack(input);
 
-// Now do moving!
+/* Part one */
+// Read in data
+var cargoStack = ParseCargoStack(input);
+// Move
 foreach (var instruction in moveInstructions)
 {
     for (int i = 0; i < instruction.QuantityToMove; i++)
@@ -12,15 +14,25 @@ foreach (var instruction in moveInstructions)
         cargoStack[instruction.MoveTo].Push(cargoStack[instruction.MoveFrom].Pop());
     }
 }
-
-
 // Print answer
 var answer = "";
 foreach ((var k, var stack) in cargoStack)
 {
     answer += stack.Pop();
 }
-Console.WriteLine(answer);
+Console.WriteLine($"Part one: {answer}");
+
+/* Part two */
+// Read in data
+var cargoList = ParseCargoToList(input);
+// Move
+foreach (var instruction in moveInstructions)
+{
+    cargoList[instruction.MoveTo].AddRange(cargoList[instruction.MoveFrom].TakeLast(instruction.QuantityToMove));
+    cargoList[instruction.MoveFrom].RemoveRange((cargoList[instruction.MoveFrom].Count - instruction.QuantityToMove), instruction.QuantityToMove);
+}
+// Print answer
+Console.WriteLine($"Part two: {string.Join("", cargoList.Values.Select(x => x.Last()))}");
 
 
 Dictionary<int, Stack<string>> ParseCargoStack(string[] input)
@@ -35,6 +47,20 @@ Dictionary<int, Stack<string>> ParseCargoStack(string[] input)
     }
     return cargoStack;
 }
+
+Dictionary<int, List<string>> ParseCargoToList(string[] input)
+{
+    var cargoRaw = input.Where(x => !x.StartsWith("move") && !string.IsNullOrEmpty(x)).Reverse().ToArray();
+    var cargoStack = new Dictionary<int, List<string>>();
+    for (int i = 1; i < cargoRaw[0].Length; i += 4)
+    {
+
+        var f = cargoRaw.Select(x => x[i].ToString()).ToList();
+        cargoStack.Add(int.Parse(f.First().ToString()), f.Skip(1).Where(x => x != " ").ToList());
+    }
+    return cargoStack;
+}
+
 
 IEnumerable<MoveModel> ParseMoveInstructions(string[] input)
 {
