@@ -1,15 +1,15 @@
 ﻿var inputString = File.ReadLines("PuzzleInput.txt").First();
-Console.WriteLine(GetEndOfMarkerIndex(inputString.ToList()));
+Console.WriteLine(GetEndOfMarkerIndex(inputString.ToList(), 4));
+Console.WriteLine(GetEndOfMarkerIndex(inputString.ToList(), 14));
 
-
-int GetEndOfMarkerIndex(List<char> input)
+static int GetEndOfMarkerIndex(List<char> input, int numOfDistinctChars)
 {
     var count = 0;
-    while (input.Count > 3 + count)
+    while (input.Count > (numOfDistinctChars - 1) + count)
     {
-        if (input.Skip(count).Take(4).Distinct().Count() == 4)
+        if (input.Skip(count).Take(numOfDistinctChars).Distinct().Count() == numOfDistinctChars)
         {
-            return count + 4;
+            return count + numOfDistinctChars;
         }
         count++;
     }
