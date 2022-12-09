@@ -1,4 +1,5 @@
 ﻿using DaySeven;
+using System.Drawing;
 
 var input = File.ReadLines("PuzzleInput.txt");
 var folders = new List<Folder>();
@@ -78,28 +79,32 @@ while (bottomDirs.Any())
     // For each folder at bottom level
     foreach (var subDir in bottomDirs)
     {
-        if (subDir.ExceededSize) continue;
+        //if (subDir.ExceededSize) continue;
 
         var size = subDir.Files.Values.Sum() + folders.Where(x => subDir.Subdirectories.ToList().Contains(x.Id)).Select(x => x.Size).Sum();
-        if (size > 100000)
-        {
-            subDir.ExceededSize = true;
-            // For all directories above this directory, also set ExceededSize to true
-            var parentFolder = folders.FirstOrDefault(x => x.Id == subDir.ParentFolderId);
-            while (parentFolder is not null)
-            {
-                parentFolder.ExceededSize = true;
-                var folderId = parentFolder.ParentFolderId;
-                parentFolder = folders.FirstOrDefault(x => x.Id == folderId);
-            }
-        }
-        else
-        {
-            subDir.Size = size;
-        }
+        //if (size > 100000)
+        //{
+        //    subDir.ExceededSize = true;
+        //    // For all directories above this directory, also set ExceededSize to true
+        //    var parentFolder = folders.FirstOrDefault(x => x.Id == subDir.ParentFolderId);
+        //    while (parentFolder is not null)
+        //    {
+        //        parentFolder.ExceededSize = true;
+        //        var folderId = parentFolder.ParentFolderId;
+        //        parentFolder = folders.FirstOrDefault(x => x.Id == folderId);
+        //    }
+        //}
+        //else
+        //{
+        //    subDir.Size = size;
+        //}
+        subDir.Size = size;
     }
     var parentFolderIds = bottomDirs.Select(x => x.ParentFolderId);
     bottomDirs = folders.Where(f => parentFolderIds.Contains(f.Id) && f.ExceededSize == false).ToList();
 }
 
-Console.WriteLine(folders.Where(x => x.ExceededSize == false).Select(x => x.Size).Where(x => x < 100000).Sum());
+//Console.WriteLine(folders.Where(x => x.ExceededSize == false).Select(x => x.Size).Where(x => x < 100000).Sum());
+
+var extraSpaceRequired = folders.First(x => x.Name == "/").Size - 40000000;
+Console.WriteLine(folders.Select(x => x.Size).Where(x => x >= extraSpaceRequired).OrderBy(x => x).First());
