@@ -22,7 +22,7 @@ foreach (var line in File.ReadAllLines("PuzzleInput.txt"))
     }
 }
 
-var maxY = sandCoords.Select(x => x.Y).OrderBy(x => x).Last();
+var maxY = sandCoords.Select(x => x.Y).OrderBy(x => x).Last() + 2;
 var count = 0;
 while (true)
 {
@@ -32,7 +32,7 @@ while (true)
     count++;
 }
 
-Console.WriteLine(count);
+Console.WriteLine(count + 1);
 
 static Point? GetNextSandPoint(HashSet<Point> sandCoords, int maxY)
 {
@@ -48,13 +48,17 @@ static Point? GetNextSandPoint(HashSet<Point> sandCoords, int maxY)
                 nextPoint = startPoint + new Size(1, 1);
                 if (sandCoords.Contains(nextPoint))
                 {
+                    if (startPoint == new Point(500, 0))
+                    {
+                        return null;
+                    }
                     return startPoint;
                 }
             }
         }
-        if (nextPoint.Y > maxY)
+        if (nextPoint.Y == maxY)
         {
-            return null;
+            return startPoint;
         }
         startPoint = nextPoint;
     }
