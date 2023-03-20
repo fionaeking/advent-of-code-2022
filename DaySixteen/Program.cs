@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using DaySixteen;
+using System.Text.RegularExpressions;
 
 var regex = new Regex(@"Valve (?<valve>\w+) has flow rate=(?<flow_rate>\d+); tunnels? leads? to valves? (?<tunnel_valves>.*)");
 
@@ -12,90 +13,165 @@ var rawValves = File.ReadAllLines("PuzzleInput.txt")
     });
 
 var currentMin = 1;
-
 var firstValve = rawValves.First(x => x.Value == "AA");
 
-
-var v = new List<Test>
+var v = new HashSet<RouteTracker>
 {
-    new Test() { Valve = firstValve, OpenedValves = rawValves.Where(x => x.FlowRate == 0).Select(x => new KeyValuePair<string, int>(x.Value, x.FlowRate)).ToHashSet() }
+    new RouteTracker() { CurrValves = new List<ValveInfo>(){firstValve, firstValve } }
 };
 
-var nextValves = new List<Test>();
+var nextValves = new List<RouteTracker>();
 
 var maxFlowRate = rawValves.Select(x => x.FlowRate).Sum();
 
-while (currentMin <= 30)
+const int totalMins = 26; // 30;
+
+var finished = false;
+
+while (currentMin <= totalMins)
 {
     foreach (var currentValve in v)
     {
-        if (currentValve.OpenedValves.Select(x => x.Value).Sum() == maxFlowRate)
+        // 4 cases
+        // 3. Human moves, elephant opens tunnel
+        // 4. Elephant moves, human opens tunnel
+        // 2. Human and elephant both move
+        // 1. Human and elephant both open tunnel
+
+        // CASE 1
+        var newOpenedValves = new HashSet<KeyValuePair<string, int>>();
+        foreach (var b in currentValve.OpenedValves)
         {
-            nextValves.Add(new Test()
-            {
-                Valve = currentValve.Valve,
-                Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
-                OpenedValves = currentValve.OpenedValves
-            });
-            continue;
+            newOpenedValves.Add(b);
         }
 
-        if (!currentValve.OpenedValves.Select(x => x.Key).Contains(currentValve.Valve.Value))
+        foreach (var b in currentValve.CurrValves)
         {
-            var newOpenedValves = new HashSet<KeyValuePair<string, int>>();
-            foreach (var b in currentValve.OpenedValves)
+            if (!currentValve.OpenedValves.Select(x => x.Key).Contains(b.Value) && b.FlowRate != 0)
             {
-                newOpenedValves.Add(b);
+                newOpenedValves.Add(new KeyValuePair<string, int>(b.Value, b.FlowRate));
             }
-            newOpenedValves.Add(new KeyValuePair<string, int>(currentValve.Valve.Value, currentValve.Valve.FlowRate));
-            nextValves.Add(new Test()
+        }
+        if (newOpenedValves.Count == currentValve.OpenedValves.Count + 2 || newOpenedValves.Select(x => x.Value).Sum() == maxFlowRate)
+            nextValves.Add(new RouteTracker()
             {
-                Valve = currentValve.Valve,
+                CurrValves = currentValve.CurrValves,
                 Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
                 OpenedValves = newOpenedValves
             });
 
-            // Also model the case where we didn't open it and just moved to the next stage
-        }
-        foreach (var g in rawValves.Where(x => currentValve.Valve.TunnelValves.Contains(x.Value)))
+        // CASE 2
+        foreach (var g in rawValves.Where(x => currentValve.CurrValves[0].TunnelValves.Contains(x.Value)))
         {
-            nextValves.Add(new Test()
+            foreach (var h in rawValves.Where(x => currentValve.CurrValves[1].TunnelValves.Contains(x.Value)))
             {
-                Valve = g,
-                Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
-                OpenedValves = currentValve.OpenedValves
-            });
+                if (!currentValve.OpenedValves.Select(x => x.Key).ToList().Contains(g.Value) && !currentValve.OpenedValves.Select(x => x.Key).ToList().Contains(g.Value))
+                    nextValves.Add(new RouteTracker()
+                    {
+                        CurrValves = new List<ValveInfo> { g, h },
+                        Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
+                        OpenedValves = currentValve.OpenedValves
+                    });
+            }
+            if (!currentValve.OpenedValves.Select(x => x.Key).ToList().Contains(g.Value))
+                nextValves.Add(new RouteTracker()
+                {
+                    CurrValves = new List<ValveInfo> { g, currentValve.CurrValves[1] },
+                    Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
+                    OpenedValves = currentValve.OpenedValves
+                });
+        }
+
+        foreach (var h in rawValves.Where(x => currentValve.CurrValves[1].TunnelValves.Contains(x.Value)))
+        {
+            if (!currentValve.OpenedValves.Select(x => x.Key).ToList().Contains(h.Value))
+                nextValves.Add(new RouteTracker()
+                {
+                    CurrValves = new List<ValveInfo>() { currentValve.CurrValves[0], h },
+                    Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
+                    OpenedValves = currentValve.OpenedValves
+                });
+        }
+
+        // CASE 3 - Human moves, elephant opens tunnel
+        newOpenedValves = new HashSet<KeyValuePair<string, int>>();
+        foreach (var b in currentValve.OpenedValves)
+        {
+            newOpenedValves.Add(b);
+        }
+        if (!currentValve.OpenedValves.Select(x => x.Key).Contains(currentValve.CurrValves[1].Value) && currentValve.CurrValves[1].FlowRate != 0)
+        {
+            newOpenedValves.Add(new KeyValuePair<string, int>(currentValve.CurrValves[1].Value, currentValve.CurrValves[1].FlowRate));
+        }
+        foreach (var nextValveHuman in rawValves.Where(x => currentValve.CurrValves[0].TunnelValves.Contains(x.Value)))
+        {
+            if (!currentValve.OpenedValves.Select(x => x.Key).ToList().Contains(nextValveHuman.Value))
+                nextValves.Add(new RouteTracker()
+                {
+                    CurrValves = new List<ValveInfo> { nextValveHuman, currentValve.CurrValves[1] },
+                    Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
+                    OpenedValves = newOpenedValves
+                });
+        }
+
+        // Case 4
+        newOpenedValves = new HashSet<KeyValuePair<string, int>>();
+        foreach (var b in currentValve.OpenedValves)
+        {
+            newOpenedValves.Add(b);
+        }
+        if (!currentValve.OpenedValves.Select(x => x.Key).Contains(currentValve.CurrValves[0].Value) && currentValve.CurrValves[0].FlowRate != 0)
+        {
+            newOpenedValves.Add(new KeyValuePair<string, int>(currentValve.CurrValves[0].Value, currentValve.CurrValves[0].FlowRate));
+        }
+        foreach (var nextValveElephant in rawValves.Where(x => currentValve.CurrValves[1].TunnelValves.Contains(x.Value)))
+        {
+            if (!currentValve.OpenedValves.Select(x => x.Key).ToList().Contains(nextValveElephant.Value))
+                nextValves.Add(new RouteTracker()
+                {
+                    CurrValves = new List<ValveInfo> { currentValve.CurrValves[0], nextValveElephant },
+                    Sum = currentValve.Sum + currentValve.OpenedValves.Select(x => x.Value).Sum(),
+                    OpenedValves = newOpenedValves
+                });
         }
     }
 
-    v = nextValves.Select(x => new Test()
+    var minsRemaining = totalMins - currentMin;
+
+    if (nextValves.Any(x => x.OpenedValves.Select(x => x.Value).Sum() == maxFlowRate))
     {
-        Valve = x.Valve,
-        Sum = x.Sum,
-        OpenedValves = x.OpenedValves
-    }).GroupBy(x => x.Valve.Value).Select(x => x.OrderByDescending(y => y.Sum).First())
-    .ToList();
+        var max = nextValves.Where(x => x.OpenedValves.Select(x => x.Value).Sum() == maxFlowRate).Select(x => x.Sum).Max();
+        if (max >= nextValves.Select(x => x.Sum).Max())
+        {
+            Console.WriteLine(max + (maxFlowRate * minsRemaining));
+            finished = true;
+            break;
+        }
+    }
+
+    const int takeMax = 90000;
+    if (nextValves.Count > takeMax)
+    {
+        var maxCurrSum = v.Select(x => x.Sum).Max();
+        var maxCurrFlowRate = v.First(x => x.Sum == maxCurrSum).OpenedValves.Select(x => x.Value).Sum();
+        var maxTotal = maxCurrSum + maxCurrFlowRate * minsRemaining;
+
+        v = nextValves.Select(x => new RouteTracker()
+        {
+            CurrValves = x.CurrValves,
+            Sum = x.Sum,
+            OpenedValves = x.OpenedValves
+        })
+        .Where(x => x.Sum + maxFlowRate * (minsRemaining) >= maxTotal)
+     .GroupBy(x => x.CurrValves.Select(x => x.Value).OrderBy(x => x)).Select(x => x.OrderByDescending(y => y.OpenedValves.Select(x => x.Value).Sum()).First())
+     .OrderByDescending(x => x.OpenedValves.Select(x => x.Value).Sum()).Take(takeMax).ToHashSet();
+    }
+    else
+    {
+        v = nextValves.ToHashSet();
+    }
+
     nextValves.Clear();
     currentMin++;
 }
-Console.WriteLine(v.Select(x => x.Sum).Max());
-
-class ValveInfo
-{
-    public List<string> TunnelValves { get; set; } = new List<string>();
-    public string Value { get; set; }
-    public int FlowRate { get; set; }
-}
-
-//class ValveTwo : CommonValve
-//{
-//    public List<Guid> TunnelValves { get; set; } = new List<Guid>();
-//
-//}
-
-class Test
-{
-    public ValveInfo Valve { get; set; }
-    public int Sum { get; set; } = 0;
-    public HashSet<KeyValuePair<string, int>> OpenedValves = new HashSet<KeyValuePair<string, int>>();
-}
+if (!finished) Console.WriteLine(v.Select(x => x.Sum).Max());
