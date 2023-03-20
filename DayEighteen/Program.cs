@@ -1,6 +1,7 @@
 ﻿var input = File.ReadAllLines("PuzzleInput.txt").Select(x => x.Split(',').Select(y => int.Parse(y)).ToArray());
 var sideCount = 0;
 
+// TODO I only got part 1 working here
 
 foreach (var item in input)
 {

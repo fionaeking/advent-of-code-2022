@@ -3,6 +3,9 @@ using System.Numerics;
 
 var monkeyList = new List<Monkey>();
 
+
+// TODO I only got part 1 working here
+
 foreach (var block in File.ReadAllText("PuzzleInput.txt").Split(new string[] { Environment.NewLine + Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
 {
     var m = new Monkey();
@@ -78,31 +81,3 @@ var monkeyBusiness = monkeyList.Select(x => x.ItemsInspected).OrderByDescending(
 Console.WriteLine(monkeyBusiness);
 
 
-
-// Is 21 + 11 divible by 4
-
-
-
-class Monkey
-{
-    public int Id;
-    public List<BigInteger> StartingItems;
-    public Operation Operation;
-    public int Test;
-    public int TrueCondition;
-    public int FalseCondition;
-    public long ItemsInspected = 0;
-
-}
-
-class Operation
-{
-    public Operator Name;
-    public string Value;
-}
-
-public enum Operator
-{
-    Add,
-    Multiply,
-}

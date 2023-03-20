@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 
+// TODO I only got part 1 working here
+
 var jetPattern = File.ReadAllText("PuzzleInput.txt").ToCharArray();
 const int width = 7;
 const int rockLeftMargin = 2;

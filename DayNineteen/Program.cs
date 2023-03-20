@@ -1,5 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
+// TODO this code is horrible and doesn't even work yet!
+
 File.ReadAllLines("PuzzleInput.txt");
 
 var oreRegex = new Regex(@"Each\sore\srobot\scosts\s(?<ore_cost>\d+)\sore");

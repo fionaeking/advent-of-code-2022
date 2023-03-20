@@ -16,6 +16,8 @@ var allSensors = File.ReadAllLines("PuzzleInput.txt")
 
 // PartOne(allSensors);
 
+// TODO I only got part 1 working here
+
 PartTwo(allSensors);
 
 static void PartOne(IEnumerable<SensorBeaconPair> allSensors)
